@@ -29,6 +29,12 @@ app.get("/score", async (req, res) => {
     const matchesDetails = await getMatchesData();
     const match = matchesDetails.find((match) => match.matchId === matchId);
 
+    if (!match) {
+      return res
+        .status(404)
+        .json({ message: "match with the give match_id not found" });
+    }
+
     const team1 = capitalizeName(match.teams.team1.name);
     const team2 = capitalizeName(match.teams.team2.name);
 
@@ -63,7 +69,7 @@ app.get("/score", async (req, res) => {
       team2: team2_players,
     };
 
-    const teams = await getTeams();
+    const teams = await getTeams(match.eventType, match.category);
     const group_a_teams = [];
     const group_b_teams = [];
 
@@ -123,6 +129,7 @@ app.get("/score", async (req, res) => {
       },
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -227,13 +234,21 @@ app.put("/update", async (req, res) => {
   try {
     const match = await getMatchData(matchId);
 
+    if (!match) {
+      return res
+        .status(404)
+        .json({ message: "match with the given match_id not found" });
+    }
+
     const team1 = capitalizeName(match.teams.team1.name);
     const team2 = capitalizeName(match.teams.team2.name);
 
     if (match.setsWon.team1 === match.setsWon.team2) {
-      await updateScore(team1, team2, true);
+      await updateScore(match.eventType, match.category, team1, team2, true);
     } else {
       await updateScore(
+        match.eventType,
+        match.category,
         capitalizeName(match.teamWon),
         capitalizeName(match.teamLost),
         false
@@ -242,6 +257,7 @@ app.put("/update", async (req, res) => {
 
     res.status(200).json({ message: "score updated successfully" });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
