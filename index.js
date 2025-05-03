@@ -1,10 +1,14 @@
 import express from "express";
+import multer from "multer";
 import { capitalizeName, getMatchData } from "./utils.js";
 import { updateScore } from "./models/index.js";
 import { handleScheduleRequest, handleScoreRequest } from "./handlers.js";
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const upload = multer();
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -12,7 +16,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post("/", async (req, res) => {
+app.post("/", upload.none(), async (req, res) => {
   const requestType = req.body.request_type;
 
   if (!requestType) {
