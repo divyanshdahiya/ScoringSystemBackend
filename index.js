@@ -16,25 +16,34 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post("/", upload.none(), async (req, res) => {
-  const requestType = req.body.request_type;
+app.get("/", async (req, res) => {
+  const {
+    request_type,
+    sport_id,
+    format,
+    gender,
+    sdate,
+    match_id, // required if request_type === "score"
+  } = req.query;
 
-  if (!requestType) {
-    return res.status(400).json({ error: "Bad request" });
+  if (!request_type) {
+    return res.status(400).json({ error: "Bad request: request_type missing" });
   }
 
-  if (requestType === "schedule") {
+  if (request_type === "schedule") {
+    // No changes to your schedule handler
     await handleScheduleRequest(req, res);
-  } else if (requestType === "score") {
-    const matchId = req.body.match_id;
-
-    if (!matchId) {
-      return res.status(400).json({ error: "Bad request" });
+  } else if (request_type === "score") {
+    if (!match_id) {
+      return res
+        .status(400)
+        .json({ error: "Bad request: match_id missing for score" });
     }
 
-    await handleScoreRequest(req, res, matchId);
+    // Use match_id from query string (not body)
+    await handleScoreRequest(req, res, match_id);
   } else {
-    res.status(400).json({ error: "Bad request" });
+    res.status(400).json({ error: "Bad request: invalid request_type" });
   }
 });
 
