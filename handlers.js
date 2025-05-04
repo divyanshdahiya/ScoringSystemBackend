@@ -9,11 +9,23 @@ import { getTeams } from "./models/index.js";
 
 const team_details = await getTeamsData();
 
-export async function handleScheduleRequest(req, res) {
+export async function handleScheduleRequest(req, res, gender) {
   try {
-    const matches = await getMatchesData();
+    let matches = await getMatchesData();
 
     const today = new Date();
+
+    matches = matches
+      .filter(
+        (match) => new Date(match.date).toDateString() === today.toDateString()
+      )
+      .filter((match) => {
+        if (gender.toLowerCase() === "male") {
+          return match.category.toLowerCase() === "men";
+        } else if (gender.toLowerCase() === "female") {
+          return match.category.toLowerCase() === "women";
+        }
+      });
 
     let finishedMatchRounds = [];
 

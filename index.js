@@ -16,7 +16,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", async (req, res) => {
+app.get("/", upload.none(), async (req, res) => {
   const {
     request_type,
     sport_id,
@@ -31,8 +31,12 @@ app.get("/", async (req, res) => {
   }
 
   if (request_type === "schedule") {
-    // No changes to your schedule handler
-    await handleScheduleRequest(req, res);
+    if (!gender) {
+      return res
+        .status(400)
+        .json({ error: "Bad request: gender missing for schedule" });
+    }
+    await handleScheduleRequest(req, res, gender);
   } else if (request_type === "score") {
     if (!match_id) {
       return res
