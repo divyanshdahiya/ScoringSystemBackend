@@ -34,7 +34,7 @@ export async function handleScheduleRequest(req, res, gender) {
         const datetimeString = `${match.date}T${match.time}:00`;
         const datetimeObj = new Date(datetimeString);
 
-        return datetimeObj.getTime() < today.getTime() && !match.isLive;
+        return !match.isLive && match.matchOver;
       })
       .map((match) => {
         finishedMatchRounds.push(capitalizeName(match.round));
@@ -63,7 +63,7 @@ export async function handleScheduleRequest(req, res, gender) {
         const datetimeString = `${match.date}T${match.time}:00`;
         const datetimeObj = new Date(datetimeString);
 
-        return datetimeObj.getTime() > today.getTime();
+        return !match.isLive && !Boolean(match.matchOver);
       })
       .map((match) => {
         scheduledMatchRounds.push(capitalizeName(match.round));
