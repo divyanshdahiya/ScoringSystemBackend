@@ -1,10 +1,8 @@
 import { connect } from "mongoose";
 import Team from "./Rank.js";
 
-const password = process.env.MONGODB_PASSWORD;
-
 connect(
-  `mongodb+srv://admin:${password}@cluster0.lyvag2f.mongodb.net/scores?retryWrites=true&w=majority&appName=Cluster0`
+  `mongodb+srv://admin:pass12345@cluster0.lyvag2f.mongodb.net/scores?retryWrites=true&w=majority&appName=Cluster0`
 );
 
 export async function getTeams(eventType, category) {
